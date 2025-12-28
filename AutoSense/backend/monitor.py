@@ -1,27 +1,10 @@
-import psutil, sqlite3, time
-from database import init_db
+import psutil
 
-init_db()
-
-def get_stats():
+def collect_metrics():
+    net = psutil.net_io_counters()
     return {
-        "cpu": psutil.cpu_percent(interval=1),
-        "ram": psutil.virtual_memory().percent,
-        "disk": psutil.disk_usage("/").percent
+        "cpu": round(psutil.cpu_percent(interval=1), 1),
+        "ram": round(psutil.virtual_memory().percent, 1),
+        "disk": round(psutil.disk_usage('/').percent, 1),
+        "network": net.bytes_sent + net.bytes_recv
     }
-
-def log_stats():
-    while True:
-        stats = get_stats()
-
-        conn = sqlite3.connect("autosense.db")
-        c = conn.cursor()
-
-        c.execute(
-            "INSERT INTO system_stats (cpu, ram, disk) VALUES (?,?,?)",
-            (stats["cpu"], stats["ram"], stats["disk"])
-        )
-
-        conn.commit()
-        conn.close()
-        time.sleep(1)

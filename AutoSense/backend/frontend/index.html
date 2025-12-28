@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AutoSense – System Health Monitor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <h1>🧠 AutoSense</h1>
+    <button id="themeToggle">🌙</button>
+  </header>
+
+  <p class="subtitle">AI-Powered System Health Monitor</p>
+  <p id="uptime" class="uptime"></p>
+
+  <!-- Alert -->
+  <div id="alertBox" class="alert hidden"></div>
+
+  <!-- Metrics -->
+  <section class="cards">
+    <div class="card" id="cpu"></div>
+    <div class="card" id="ram"></div>
+    <div class="card" id="disk"></div>
+    <div class="card" id="health"></div>
+  </section>
+
+  <!-- Fixes -->
+  <section class="fixes">
+    <h2>Suggested Fixes</h2>
+    <ul id="fixes"></ul>
+  </section>
+
+  <!-- CSV -->
+  <button id="downloadBtn" class="primary-btn">
+    ⬇ Download CSV Report
+  </button>
+
+  <!-- Chart -->
+  <section class="chart-container">
+    <canvas id="chart"></canvas>
+  </section>
+
+  <!-- Table -->
+  <section class="table-section">
+    <h2>Last 10 Records</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>CPU</th>
+          <th>RAM</th>
+          <th>Disk</th>
+          <th>Health</th>
+        </tr>
+      </thead>
+      <tbody id="recordsTable"></tbody>
+    </table>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

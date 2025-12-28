@@ -1,0 +1,148 @@
+/* 🌗 THEME VARIABLES */
+:root {
+  --bg: #0f172a;
+  --text: #ffffff;
+  --card: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.15);
+  --accent: #38bdf8;
+}
+
+.light {
+  --bg: #f8fafc;
+  --text: #020617;
+  --card: #e5e7eb;
+  --border: #cbd5f5;
+  --accent: #2563eb;
+}
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, var(--bg), #020617);
+  color: var(--text);
+  padding: 30px;
+  transition: all 0.3s ease;
+}
+
+/* TOP BAR */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-bar h1 {
+  font-size: 28px;
+}
+
+#themeToggle {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* TEXT */
+.subtitle {
+  margin: 10px 0;
+  opacity: 0.8;
+}
+
+.uptime {
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+/* ALERT */
+.alert {
+  margin: 15px auto;
+  padding: 12px;
+  max-width: 600px;
+  border-radius: 10px;
+  background: #dc2626;
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+/* CARDS */
+.cards {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 25px 0;
+}
+
+.card {
+  width: 160px;
+  padding: 18px;
+  background: var(--card);
+  border-radius: 16px;
+  text-align: center;
+  font-weight: bold;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+}
+
+/* FIXES */
+.fixes ul {
+  list-style: none;
+  margin: 10px 0 20px;
+}
+
+.fixes li {
+  margin: 8px auto;
+  max-width: 400px;
+  padding: 10px;
+  background: var(--card);
+  border-radius: 10px;
+}
+
+/* BUTTON */
+.primary-btn {
+  display: block;
+  margin: 20px auto;
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* CHART */
+.chart-container {
+  margin: 30px auto;
+  width: 90%;
+  max-width: 900px;
+  height: 360px;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+/* TABLE */
+.table-section {
+  margin-top: 40px;
+}
+
+table {
+  width: 90%;
+  margin: 20px auto;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}

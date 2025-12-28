@@ -1,76 +1,31 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-
-import threading
-
-from monitor import log_stats, get_stats
+from monitor import collect_metrics
+from anomaly import AnomalyDetector
 from health_score import calculate_health
-from anomaly import detect_anomaly
-from control import add_blacklist, get_blacklist
-from fix_engine import auto_fix
-from notifier import send_alert
-from alert_manager import should_alert
+from fix_engine import suggest_fixes
 from report import generate_report
+import time
 
-app = FastAPI()
+detector = AnomalyDetector()
 
-# Serve frontend
-app.mount("/static", StaticFiles(directory="static"), name="static")
+while True:
+    metrics = collect_metrics()
 
-# Background system logger
-threading.Thread(target=log_stats, daemon=True).start()
+    cpu = metrics["cpu"]
+    ram = metrics["ram"]
+    disk = metrics["disk"]
 
+    detector.update_history(cpu)
 
-@app.get("/", response_class=HTMLResponse)
-def home():
-    with open("static/index.html", "r", encoding="utf-8") as f:
-        return f.read()
+    z_anomaly = detector.z_score_anomaly(cpu)
+    ml_anomaly = detector.isolation_forest_anomaly(cpu)
 
+    anomaly_detected = z_anomaly or ml_anomaly
 
-@app.get("/stats")
-def stats():
-    return get_stats()
+    health = calculate_health(cpu, ram, disk, anomaly_detected)
+    fixes = suggest_fixes(cpu, ram, disk)
 
+    report = generate_report(metrics, health, anomaly_detected, fixes)
 
-@app.get("/health")
-def health():
-    stats = get_stats()
+    print(report)
 
-    cpu = stats["cpu"]
-    ram = stats["ram"]
-    disk = stats["disk"]
-
-    anomaly = detect_anomaly(cpu, ram, disk)
-
-    if should_alert(anomaly) and anomaly:
-        send_alert("AutoSense Warning", "Unusual system behavior detected!")
-
-    killed = auto_fix(anomaly)
-
-    score = calculate_health(cpu, ram, disk, anomaly)
-    status = "System Normal" if score > 70 else "System At Risk"
-
-    return {
-        "score": score,
-        "status": status,
-        "anomaly": anomaly,
-        "killed": killed
-    }
-
-
-@app.get("/blacklist/{app_name}")
-def blacklist(app_name: str):
-    add_blacklist(app_name)
-    return {"message": f"{app_name} added to blacklist"}
-
-
-@app.get("/blacklist")
-def fetch_blacklist():
-    return JSONResponse(get_blacklist())
-
-
-@app.get("/report")
-def report():
-    file = generate_report()
-    return FileResponse(file, filename="AutoSense_Report.pdf")
+    time.sleep(5)
