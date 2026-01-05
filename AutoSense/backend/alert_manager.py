@@ -1,17 +1,16 @@
-import time
+import winsound
+import datetime
 
-_last_alert_time = 0
-_last_state = 0
-COOLDOWN = 30  # seconds
+def send_alert(status, cpu, ram, disk):
+    timestamp = datetime.datetime.now().strftime("%H:%M:%S")
 
-def should_alert(current_state):
-    global _last_alert_time, _last_state
-    now = time.time()
+    print("\n🚨 AUTO SENSE ALERT 🚨")
+    print(f"Time   : {timestamp}")
+    print(f"Status : {status}")
+    print(f"CPU    : {cpu}%")
+    print(f"RAM    : {ram}%")
+    print(f"Disk   : {disk}%")
+    print("⚠ Please check your system!\n")
 
-    if current_state != _last_state and (now - _last_alert_time) > COOLDOWN:
-        _last_alert_time = now
-        _last_state = current_state
-        return True
-
-    _last_state = current_state
-    return False
+    # Beep alert
+    winsound.Beep(1200, 700)

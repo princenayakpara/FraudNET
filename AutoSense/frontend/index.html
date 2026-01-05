@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoSense AI | ElectroSphere 2K26</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=11.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
+
+<body>
+  <div class="app-layout">
+    <!-- MOBILE TOGGLE BUTTON -->
+    <button id="mobileMenuBtn" class="mobile-only-btn" onclick="toggleSidebar()">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <i class="fa-solid fa-cube fa-xl feature-icon"></i>
+        <span>AutoSense<small>AI</small></span>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-btn active" onclick="switchTab('dashboard')">
+          <i class="fa-solid fa-gauge-high"></i> Dashboard
+        </button>
+        <button class="nav-btn" onclick="switchTab('processes')">
+          <i class="fa-solid fa-list-check"></i> Processes
+        </button>
+        <button class="nav-btn" onclick="switchTab('cleaner')">
+          <i class="fa-solid fa-broom"></i> Deep Clean
+        </button>
+        <button class="nav-btn" onclick="switchTab('security')">
+          <i class="fa-solid fa-shield-halved"></i> Security
+        </button>
+        <button class="nav-btn" onclick="switchTab('ai')">
+          <i class="fa-solid fa-brain"></i> AI Forecast
+        </button>
+        <button class="nav-btn" onclick="switchTab('disk')">
+          <i class="fa-solid fa-hard-drive"></i> Disk Space
+        </button>
+        <button class="nav-btn" onclick="switchTab('uninstaller')">
+          <i class="fa-solid fa-trash-can"></i> App Manager
+        </button>
+
+        <div class="spacer"></div>
+
+        <div class="user-profile" id="userProfile" onclick="switchTab('auth')">
+          <div class="avatar"><i class="fa-solid fa-user"></i></div>
+          <div class="user-info">
+            <span id="usernameDisplay">Guest</span>
+            <small>Local Admin</small>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="main-container">
+
+      <!-- DASHBOARD TAB -->
+      <section id="dashboard" class="tab-content active">
+        <header class="section-header">
+          <div>
+            <h1>System Overview</h1>
+            <p>Real-time AI monitoring active</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-secondary" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+              <i class="fa-solid fa-moon"></i>
+            </button>
+            <button class="btn-primary" onclick="quickBoost()"><i class="fa-solid fa-bolt"></i> Smart Boost</button>
+          </div>
+        </header>
+
+        <!-- DASHBOARD GRID -->
+        <div class="dashboard-grid">
+
+          <!-- 1. AI BRAIN & HEALTH -->
+          <div class="glass-panel full-width"
+            style="display:flex; align-items:center; gap:20px; position:relative; overflow:hidden;">
+            <div class="ai-glow-orb"></div>
+            <div style="flex:1; z-index:2;">
+              <h2 style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-brain" style="color:var(--accent)"></i> AutoSense Brain
+                <span id="aiStatusBadge" class="badge">ANALYZING...</span>
+              </h2>
+              <div id="aiChatBubble" class="ai-chat-bubble">
+                <p class="typing-text">Initializing neural network. Assessing system stability...</p>
+              </div>
+            </div>
+            <div style="text-align:right; z-index:2; min-width:150px;">
+              <h1 id="sysHealthScore" style="font-size:3rem; margin:0; line-height:1; color:var(--success)">--</h1>
+              <p style="opacity:0.6; font-size:0.9em;">SYSTEM HEALTH</p>
+            </div>
+          </div>
+
+          <!-- 2. LIVE METRICS -->
+          <div class="glass-panel">
+            <h3><i class="fa-solid fa-microchip"></i> CPU Load</h3>
+            <div class="gauge-container" id="cpuGauge">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                <path class="circle cpu" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                <text x="18" y="20.35" class="percentage value">0%</text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="glass-panel">
+            <h3><i class="fa-solid fa-memory"></i> RAM Usage</h3>
+            <div class="gauge-container" id="ramGauge">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                <path class="circle ram" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                <text x="18" y="20.35" class="percentage value">0%</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- 3. SECURITY MINI-DASH -->
+          <div class="glass-panel" id="securityMini"
+            style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <i class="fa-solid fa-shield-virus"
+              style="font-size:2em; color:var(--text-secondary); margin-bottom:10px;"></i>
+            <h3 style="margin:0;">Security</h3>
+            <p id="secStatus" style="color:var(--success); font-weight:bold;">Protected</p>
+            <div style="font-size:0.8em; opacity:0.6; margin-top:5px;">Firewall: <span id="fwStatus">ON</span></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="glass-panel">
+            <h3><i class="fa-solid fa-network-wired"></i> Network Activity</h3>
+            <div class="net-stats">
+              <div class="net-item"><i class="fa-solid fa-upload"></i> <span id="uploadSpeed">0</span> Mbps</div>
+              <div class="net-item"><i class="fa-solid fa-download"></i> <span id="downloadSpeed">0</span> Mbps</div>
+            </div>
+            <canvas id="netChart" style="max-height: 200px;"></canvas>
+          </div>
+
+          <div class="glass-panel">
+            <h3><i class="fa-solid fa-desktop"></i> System Specs</h3>
+            <div id="sysSpecs" class="specs-list">Loading...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROCESSES TAB -->
+      <section id="processes" class="tab-content">
+        <header class="section-header">
+          <h1>Process Manager Pro</h1>
+          <button class="btn-secondary" onclick="loadProcesses()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </header>
+        <div class="glass-panel full-height">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>PID</th>
+                <th>Name</th>
+                <th>CPU %</th>
+                <th>RAM (MB)</th>
+                <th>Disk I/O</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="procTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CLEANER TAB -->
+      <section id="cleaner" class="tab-content">
+        <header class="section-header">
+          <h1>Deep Cleaner</h1>
+        </header>
+
+        <div class="dashboard-grid">
+          <div class="glass-panel">
+            <h3><i class="fa-solid fa-broom"></i> Junk Files</h3>
+            <p>Temporary files, Cache, System Logs</p>
+            <div class="big-stat" id="junkSize"
+              style="font-size:2.5rem; font-weight:700; color:var(--text-main); margin:15px 0;">0 MB</div>
+            <div class="actions" style="display:flex; gap:10px;">
+              <button class="btn-secondary" onclick="scanJunk()">Scan</button>
+              <button class="btn-danger" onclick="cleanJunk()">Clean All</button>
+            </div>
+          </div>
+
+          <div class="glass-panel full-width-mobile">
+            <h3><i class="fa-solid fa-file-circle-exclamation"></i> Large Files</h3>
+            <p>Files > 100MB in User Directories</p>
+            <button class="btn-secondary full-width" onclick="scanLargeFiles()"
+              style="margin-top:10px; margin-bottom:15px;">Find Large Files</button>
+            <ul id="largeFilesList" class="scroll-list" style="max-height:200px; overflow-y:auto;"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECURITY TAB -->
+      <section id="security" class="tab-content">
+        <header class="section-header">
+          <h1>Security Shield</h1>
+        </header>
+
+        <div class="dashboard-grid">
+          <!-- Firewall Card -->
+          <div class="glass-panel" id="firewallCard"
+            style="display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <i class="fa-solid fa-firewall fa-2x" style="color:var(--warning)"></i>
+                <h3>Firewall</h3>
+              </div>
+              <div style="margin-bottom:15px;">
+                <span class="status-badge" id="firewallStatus" style="font-size:1.1rem;">Checking...</span>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="enableFirewall()" style="align-self:flex-start;">Enable
+              Firewall</button>
+          </div>
+
+          <!-- AI Threat Card -->
+          <div class="glass-panel">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+              <i class="fa-solid fa-shield-virus fa-2x" style="color:var(--success)"></i>
+              <h3>AI Threat Scan</h3>
+            </div>
+            <span class="status-badge text-success"
+              style="font-size:1.1rem; display:block; margin-bottom:5px;">Active</span>
+            <p style="opacity:0.7;">Real-time anomaly detection is running.</p>
+          </div>
+
+          <!-- Open Ports -->
+          <div class="glass-panel full-width">
+            <h3><i class="fa-solid fa-network-wired"></i> Open Ports Risk Assessment</h3>
+            <ul id="portsList" class="risk-list" style="margin-top:15px; max-height:250px; overflow-y:auto;"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI TAB -->
+      <section id="ai" class="tab-content">
+        <header class="section-header">
+          <h1>AI Health Forecast</h1>
+        </header>
+
+        <div class="dashboard-grid">
+          <div class="glass-panel full-width">
+            <canvas id="forecastChart" height="200" style="max-height:300px; width:100%;"></canvas>
+          </div>
+
+          <div class="glass-panel">
+            <h3>Prediction Log</h3>
+            <ul id="forecastLog" class="log-list" style="max-height:200px; overflow-y:auto;"></ul>
+          </div>
+
+          <div class="glass-panel">
+            <h3><i class="fa-solid fa-robot"></i> Auto-Optimization</h3>
+            <p style="margin-bottom:15px;">Allow AI to automatically manage resources when risk is High.</p>
+            <button class="btn-primary full-width" onclick="toggleAutoMode()" id="autoModeBtn">Enable
+              Auto-Pilot</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- DISK ANALYZER -->
+      <section id="disk" class="tab-content">
+        <div class="section-header">
+          <h1>Disk Analysis</h1>
+          <div style="display:flex; gap:10px;">
+            <select id="diskSelect"
+              style="padding:8px; border-radius:8px; background:var(--glass-item); color:white; border:1px solid var(--glass-border); outline:none; cursor:pointer;"
+              onchange="scanDisk()">
+              <option value="">Loading drives...</option>
+            </select>
+            <button class="btn-primary" onclick="scanDisk()"
+              style="padding: 8px 20px; font-weight: bold; letter-spacing: 0.5px;">
+              <i class="fa-solid fa-magnifying-glass"></i> SCAN DRIVE
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-panel" id="diskStatsContainer" style="margin-bottom:20px;">
+          <!-- Dynamic Stats -->
+        </div>
+
+        <div class="glass-panel mb-4">
+          <h3>Visual Storage Treemap</h3>
+          <div id="treemapContainer" class="treemap-container">
+            <p style="opacity:0.5; padding:40px;">Run scan to generate treemap...</p>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="glass-panel">
+            <h3>File Distribution</h3>
+            <div style="height:300px; display:flex; align-items:center; justify-content:center;">
+              <canvas id="diskChart"></canvas>
+            </div>
+          </div>
+          <div class="glass-panel">
+            <h3>Top Folders</h3>
+            <div id="folderList" class="folder-grid">
+              <p style="opacity:0.5; padding:20px;">Run scan to see folder breakdown...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel mt-4">
+          <h3>Largest Files (>50MB)</h3>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>File Name</th>
+                  <th>Path</th>
+                  <th>Size</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="largeFilesTable">
+                <tr>
+                  <td colspan="4" style="text-align:center; opacity:0.5;">No scan data available</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- STARTUP TAB -->
+      <section id="startup" class="tab-content">
+        <div class="section-header">
+          <h1>Startup Manager <small style="font-size:0.5em; opacity:0.6;">Decrease Boot Time</small></h1>
+          <button class="btn-primary" onclick="loadStartupApps()">
+            <i class="fa-solid fa-rotate"></i> Refresh
+          </button>
+        </div>
+
+        <div class="glass-panel">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Application</th>
+                <th>Command</th>
+                <th>Location</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="startupListBody">
+              <tr>
+                <td colspan="4" style="text-align:center">Loading Startup Items...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- UNINSTALLER TAB -->
+      <section id="uninstaller" class="tab-content">
+        <div class="section-header">
+          <h1>App Manager <small style="font-size:0.5em; opacity:0.6;">Revo Style</small></h1>
+          <button class="btn-primary" onclick="loadInstalledApps()">
+            <i class="fa-solid fa-rotate"></i> Refresh List
+          </button>
+        </div>
+
+        <div class="glass-panel">
+          <input type="text" id="appSearch" placeholder="Search apps..." onkeyup="filterApps()"
+            style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid var(--glass-border); color:white; border-radius:8px; margin-bottom:15px;">
+
+          <div style="max-height: 60vh; overflow-y: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Application Name</th>
+                  <th>Version</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="appListBody">
+                <tr>
+                  <td colspan="3" style="text-align:center">Click Refresh to load apps...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- AUTH TAB -->
+      <section id="auth" class="tab-content">
+        <div class="auth-box">
+          <h2>User Login</h2>
+          <input type="text" id="loginUser" placeholder="Username">
+          <input type="password" id="loginPass" placeholder="Password">
+          <button class="btn-primary full-width" onclick="login()">Login</button>
+
+          <div
+            style="margin-top:20px; text-align:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
+            <div id="g_id_onload" data-client_id="YOUR_GOOGLE_CLIENT_ID" data-callback="handleCredentialResponse"
+              data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue"
+              data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left">
+            </div>
+          </div>
+
+          <button class="btn-text" onclick="register()">Create Account</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- CHATBOT UI -->
+  <button id="chatToggle" class="chat-toggle-btn" onclick="toggleChat()">
+    <i class="fa-solid fa-robot fa-lg"></i>
+  </button>
+
+  <div id="chatWindow" class="chat-window hidden">
+    <div class="chat-header">
+      <span><i class="fa-solid fa-robot"></i> AutoSense Guide</span>
+      <span class="close-chat" onclick="toggleChat()">&times;</span>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <!-- Messages will appear here -->
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Ask about problems...">
+      <button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="document.querySelector('.modal').classList.add('hidden')">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <div id="modalList"></div>
+      <div id="modalActions" style="margin-top:20px; text-align:right;"></div>
+    </div>
+  </div>
+
+  <script src="script.js?v=HACKATHON_V8"></script>
+</body>
+
+</html>
