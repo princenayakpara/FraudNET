@@ -1,7 +1,8 @@
 psutil
 numpy
 scikit-learn
-flask
-flask-cors
+fastapi
+uvicorn
 pandas
 matplotlib
+aiofiles

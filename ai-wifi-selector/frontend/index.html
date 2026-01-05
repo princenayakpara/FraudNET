@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI WiFi Selector - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .status-item {
+            flex: 1;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .status-item h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .status-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .status-item.connected .value {
+            color: #22c55e;
+        }
+        
+        .status-item.disconnected .value {
+            color: #ef4444;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .badge-excellent {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .badge-good {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .badge-fair {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .badge-poor {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .connect-btn {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .connect-btn:hover {
+            background: #5568d3;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        #message {
+            display: none;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 AI WiFi Selector</h1>
+            <p>Intelligent WiFi Network Management</p>
+        </header>
+        
+        <div class="status-bar">
+            <div class="status-item" id="connectionStatus">
+                <h3>Connection Status</h3>
+                <div class="value" id="connectionValue">Checking...</div>
+            </div>
+            <div class="status-item">
+                <h3>Current Network</h3>
+                <div class="value" id="currentNetwork">-</div>
+            </div>
+            <div class="status-item">
+                <h3>Signal Strength</h3>
+                <div class="value" id="signalStrength">-</div>
+            </div>
+            <div class="status-item">
+                <h3>Monitoring</h3>
+                <div class="value" id="monitoringStatus">-</div>
+            </div>
+        </div>
+        
+        <div id="message"></div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('networks')">Networks</button>
+            <button class="tab" onclick="showTab('logs')">Logs</button>
+            <button class="tab" onclick="showTab('settings')">Settings</button>
+        </div>
+        
+        <div id="networks" class="tab-content active">
+            <div class="actions">
+                <button class="btn btn-primary" onclick="scanNetworks()">Scan Networks</button>
+                <button class="btn btn-success" onclick="connectToBest()">Connect to Best</button>
+                <button class="btn btn-warning" onclick="trainModel()">Train Model</button>
+            </div>
+            <div id="networksTable">
+                <div class="loading">Click "Scan Networks" to discover available WiFi networks</div>
+            </div>
+        </div>
+        
+        <div id="logs" class="tab-content">
+            <div class="actions">
+                <button class="btn btn-primary" onclick="loadLogs()">Refresh Logs</button>
+                <button class="btn btn-warning" onclick="exportLogs()">Export to CSV</button>
+            </div>
+            <div id="logsTable">
+                <div class="loading">Loading logs...</div>
+            </div>
+        </div>
+        
+        <div id="settings" class="tab-content">
+            <h2>Settings</h2>
+            <div style="margin-top: 20px;">
+                <h3>Model Information</h3>
+                <div id="modelInfo" style="padding: 15px; background: #f5f5f5; border-radius: 8px; margin-top: 10px;">
+                    Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        // Show message
+        function showMessage(text, type = 'success') {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = type;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Update status
+        async function updateStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/status`);
+                const data = await res.json();
+                
+                const statusItem = document.getElementById('connectionStatus');
+                const connectionValue = document.getElementById('connectionValue');
+                const currentNetwork = document.getElementById('currentNetwork');
+                const signalStrength = document.getElementById('signalStrength');
+                const monitoringStatus = document.getElementById('monitoringStatus');
+                
+                if (data.connected) {
+                    statusItem.classList.add('connected');
+                    statusItem.classList.remove('disconnected');
+                    connectionValue.textContent = 'Connected';
+                    currentNetwork.textContent = data.current_network?.ssid || '-';
+                    signalStrength.textContent = data.current_network?.signal ? `${data.current_network.signal}%` : '-';
+                } else {
+                    statusItem.classList.add('disconnected');
+                    statusItem.classList.remove('connected');
+                    connectionValue.textContent = 'Disconnected';
+                    currentNetwork.textContent = '-';
+                    signalStrength.textContent = '-';
+                }
+                
+                monitoringStatus.textContent = data.monitoring ? 'Active' : 'Inactive';
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+        
+        // Scan networks
+        async function scanNetworks() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Scanning...';
+            
+            try {
+                const res = await fetch(`${API_BASE}/scan`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    displayNetworks(data.networks);
+                    showMessage(`Found ${data.count} networks`, 'success');
+                } else {
+                    showMessage('Scan failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Error scanning networks: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Scan Networks';
+            }
+        }
+        
+        // Display networks
+        function displayNetworks(networks) {
+            const tableDiv = document.getElementById('networksTable');
+            
+            if (!networks || networks.length === 0) {
+                tableDiv.innerHTML = '<div class="loading">No networks found</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>SSID</th><th>Signal</th><th>RSSI</th><th>Security</th><th>ML Score</th><th>Action</th></tr></thead><tbody>';
+            
+            networks.forEach(network => {
+                const signal = network.best_signal || 0;
+                const rssi = network.best_rssi || -100;
+                const auth = network.auth || 'Unknown';
+                const mlScore = network.ml_score || 0;
+                
+                let badgeClass = 'badge-poor';
+                if (signal >= 80) badgeClass = 'badge-excellent';
+                else if (signal >= 60) badgeClass = 'badge-good';
+                else if (signal >= 40) badgeClass = 'badge-fair';
+                
+                html += `<tr>
+                    <td><strong>${network.ssid}</strong></td>
+                    <td><span class="badge ${badgeClass}">${signal}%</span></td>
+                    <td>${rssi.toFixed(1)} dBm</td>
+                    <td>${auth}</td>
+                    <td>${mlScore.toFixed(2)}</td>
+                    <td><button class="connect-btn" onclick="connectToNetwork('${network.ssid}')">Connect</button></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            tableDiv.innerHTML = html;
+        }
+        
+        // Connect to network
+        async function connectToNetwork(ssid) {
+            if (!confirm(`Connect to ${ssid}?`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/switch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ssid: ssid })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage(`Connected to ${ssid}`, 'success');
+                    updateStatus();
+                } else {
+                    showMessage(data.message || 'Connection failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            }
+        }
+        
+        // Connect to best
+        async function connectToBest() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Connecting...';
+            
+            try {
+                const res = await fetch(`${API_BASE}/best`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage(`Connected to ${data.ssid} (Score: ${data.ml_score?.toFixed(2)})`, 'success');
+                    updateStatus();
+                    scanNetworks();
+                } else {
+                    showMessage(data.message || 'Connection failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Connect to Best';
+            }
+        }
+        
+        // Train model
+        async function trainModel() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Training...';
+            
+            try {
+                const res = await fetch(`${API_BASE}/model/train`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage('Model trained successfully!', 'success');
+                    loadModelInfo();
+                } else {
+                    showMessage(data.message || 'Training failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Train Model';
+            }
+        }
+        
+        // Load logs
+        async function loadLogs() {
+            try {
+                const res = await fetch(`${API_BASE}/logs?limit=50`);
+                const data = await res.json();
+                
+                const tableDiv = document.getElementById('logsTable');
+                
+                if (!data.logs || data.logs.length === 0) {
+                    tableDiv.innerHTML = '<div class="loading">No logs available</div>';
+                    return;
+                }
+                
+                let html = '<table><thead><tr><th>Time</th><th>SSID</th><th>Signal</th><th>Download</th><th>Upload</th><th>Ping</th><th>Loss</th><th>Score</th></tr></thead><tbody>';
+                
+                data.logs.forEach(log => {
+                    const time = log.timestamp ? new Date(log.timestamp).toLocaleString() : '-';
+                    html += `<tr>
+                        <td>${time}</td>
+                        <td>${log.ssid || '-'}</td>
+                        <td>${log.signal_strength || 0}%</td>
+                        <td>${(log.download_mbps || 0).toFixed(2)} Mbps</td>
+                        <td>${(log.upload_mbps || 0).toFixed(2)} Mbps</td>
+                        <td>${(log.ping_ms || 0).toFixed(2)} ms</td>
+                        <td>${(log.packet_loss_percent || 0).toFixed(2)}%</td>
+                        <td>${(log.ml_score || 0).toFixed(2)}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                tableDiv.innerHTML = html;
+            } catch (error) {
+                document.getElementById('logsTable').innerHTML = `<div class="error">Error loading logs: ${error.message}</div>`;
+            }
+        }
+        
+        // Load model info
+        async function loadModelInfo() {
+            try {
+                const res = await fetch(`${API_BASE}/model/info`);
+                const data = await res.json();
+                
+                const infoDiv = document.getElementById('modelInfo');
+                
+                if (data.exists) {
+                    infoDiv.innerHTML = `
+                        <p><strong>Model Status:</strong> Loaded</p>
+                        <p><strong>Estimators:</strong> ${data.n_estimators || 'N/A'}</p>
+                        <p><strong>Max Depth:</strong> ${data.max_depth || 'N/A'}</p>
+                        <p><strong>Features:</strong> ${data.n_features || 'N/A'}</p>
+                    `;
+                } else {
+                    infoDiv.innerHTML = '<p><strong>Model Status:</strong> Not trained yet. Click "Train Model" to create one.</p>';
+                }
+            } catch (error) {
+                document.getElementById('modelInfo').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Export logs
+        async function exportLogs() {
+            try {
+                const res = await fetch(`${API_BASE}/logs?limit=1000`);
+                const data = await res.json();
+                
+                if (!data.logs || data.logs.length === 0) {
+                    showMessage('No logs to export', 'error');
+                    return;
+                }
+                
+                // Convert to CSV
+                const headers = ['Time', 'SSID', 'Signal', 'Download', 'Upload', 'Ping', 'Loss', 'Score'];
+                const rows = data.logs.map(log => [
+                    log.timestamp || '',
+                    log.ssid || '',
+                    log.signal_strength || 0,
+                    log.download_mbps || 0,
+                    log.upload_mbps || 0,
+                    log.ping_ms || 0,
+                    log.packet_loss_percent || 0,
+                    log.ml_score || 0
+                ]);
+                
+                const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `wifi_logs_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                
+                showMessage('Logs exported successfully', 'success');
+            } catch (error) {
+                showMessage('Export failed: ' + error.message, 'error');
+            }
+        }
+        
+        // Initialize
+        updateStatus();
+        loadLogs();
+        loadModelInfo();
+        setInterval(updateStatus, 5000); // Update every 5 seconds
+    </script>
+</body>
+</html>
+
